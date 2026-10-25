@@ -1,0 +1,48 @@
+# Production-oriented stack: PostgreSQL (durable named volume) + backend API + nginx-served frontend.
+# Usage:  cp .env.example .env  &&  edit POSTGRES_PASSWORD  &&  docker compose up -d --build
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wind
+      POSTGRES_USER: wind
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data   # calibrations survive container restarts and re-creation
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wind -d wind"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    # No published port: the database is only reachable from the compose network.
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://wind:${POSTGRES_PASSWORD}@db:5432/wind
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      ELEXON_BASE_URL: ${ELEXON_BASE_URL:-https://data.elexon.co.uk/bmrs/api/v1}
+    expose:
+      - "8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      BACKEND_URL: http://backend:8000
+    ports:
+      - "${WEB_PORT:-8080}:80"
+
+volumes:
+  pgdata:

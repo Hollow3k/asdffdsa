@@ -1,0 +1,16 @@
+{
+  "name": "asdffdsa",
+  "version": "1.0.0",
+  "description": "Decision-support dashboard for day-ahead electricity procurement, built on **Elexon Insights (BMRS)** national wind data:\r **WINDFOR** hourly forecast vintages and **FUELHH** half-hourly outturn (fuel type `WIND`).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "puppeteer-core": "^25.16.0"
+  }
+}

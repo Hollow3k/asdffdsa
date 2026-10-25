@@ -11,6 +11,11 @@ const base = (extra: Record<string, Handler> = {}): Record<string, Handler> => (
   ...extra,
 });
 
+// The dashboard is behind the #/decision route; the default route is now the landing page.
+beforeEach(() => {
+  window.location.hash = "#/decision";
+});
+
 /** Nothing is fetched until the user loads the analysis. This presses the button and waits. */
 async function load() {
   await userEvent.click(await screen.findByRole("button", { name: /Load analysis/ }));

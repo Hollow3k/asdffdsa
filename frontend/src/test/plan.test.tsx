@@ -31,6 +31,11 @@ function routes(extra: Record<string, Handler> = {}): Record<string, Handler> {
 const postBodies = (f: ReturnType<typeof mockFetch>) => f.calls.filter((c) => c.method === "POST").map((c) => c.body as Body);
 const loadBtn = () => screen.getByRole("button", { name: /Load analysis|Reload analysis/ });
 
+// The dashboard is behind the #/decision route; the default route is now the landing page.
+beforeEach(() => {
+  window.location.hash = "#/decision";
+});
+
 async function typeDemand(value: string) {
   const input = await screen.findByLabelText(/Expected demand/);
   await userEvent.clear(input);
